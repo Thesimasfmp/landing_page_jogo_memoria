@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Memória: Era Jurássica</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="imagens/dinossauro.png">
+
+</head>
+<body>
+    <header>
+        <!-- Menu com links que fazem scroll -->
+        <nav>
+            <a href="#inicio">Início</a>
+            <a href="#previa">Prévia</a>
+            <a href="#formulario">Formulário</a>
+            <a href="#apoia-se">Apoia-se</a>
+            <a href="#contato">Contato</a> 
+        </nav>
+    </header>
+
+    <main>
+        <!-- Seção Início -->
+        <section id="inicio" class="hero">
+            <h1>Expedição Jurássica: O Desafio da Memória!</h1>
+        </section>
+
+        <!-- Seção Prévia: Cards com efeito flip -->
+        <section class="cards" id="previa">
+          <div class="descricao-jogo">
+            <h2>Sobre o Jogo</h2>
+            <p>Entre na floresta pré-histórica e desafie seu cérebro a encontrar os pares de dinossauros escondidos.</p>
+          </div>
+            <div class="card">
+              <div class="face front">
+                <img src="imagens/fossil.png" alt="Frente 1">
+              </div>
+              <div class="face back">
+                <img src="imagens/gallimimus.png" alt="Verso 1">
+              </div>
+            </div>
+            <div class="card">
+              <div class="face front">
+                <img src="imagens/fossil.png" alt="Frente 2">
+              </div>
+              <div class="face back">
+                <img src="imagens/ovo.png" alt="Verso 2">
+              </div>
+            </div>
+            <div class="card">
+              <div class="face front">
+                <img src="imagens/fossil.png" alt="Frente 3">
+              </div>
+              <div class="face back">
+                <img src="imagens/anchiornis.png" alt="Verso 3">
+              </div>
+            </div>
+            <div class="card">
+              <div class="face front">
+                <img src="imagens/fossil.png" alt="Frente 4">
+              </div>
+              <div class="face back">
+                <img src="imagens/anchiornis.png" alt="Verso 4">
+              </div>
+            </div>
+            <div class="card">
+              <div class="face front">
+                <img src="imagens/fossil.png" alt="Frente 5">
+              </div>
+              <div class="face back">
+                <img src="imagens/ovo.png" alt="Verso 5">
+              </div>
+            </div>
+            <div class="card">
+              <div class="face front">
+                <img src="imagens/fossil.png" alt="Frente 6">
+              </div>
+              <div class="face back">
+                <img src="imagens/ovo_nascido.png" alt="Verso 6">
+              </div>
+            </div>
+            <div class="card">
+              <div class="face front">
+                <img src="imagens/fossil.png" alt="Frente 7">
+              </div>
+              <div class="face back">
+                <img src="imagens/gallimimus.png" alt="Verso 7">
+              </div>
+            </div>
+            <div class="card">
+              <div class="face front">
+                <img src="imagens/fossil.png" alt="Frente 8">
+              </div>
+              <div class="face back">
+                <img src="imagens/ovo_nascido.png" alt="Verso 8">
+              </div>
+            </div>
+            <audio id="flipSound" src="sons/flip.mp3"></audio>
+
+          </section> 
+          <!--Funcionalidade nas cartas-->         
+         <script>
+            const cards = document.querySelectorAll(".card");
+            let flippedCards = [];
+            let lockBoard = false;
+
+            // Adiciona evento de clique a cada carta
+            cards.forEach(card => {
+              card.addEventListener("click", () => {
+                if (lockBoard || card.classList.contains("matched") || flippedCards.includes(card)) return;
+
+                card.classList.add("flip");
+                flippedCards.push(card);
+
+                if (flippedCards.length === 2) {
+                  lockBoard = true;
+
+                  const [card1, card2] = flippedCards;
+                  const img1 = card1.querySelector(".back img").src;
+                  const img2 = card2.querySelector(".back img").src;
+
+                  if (img1 === img2) {
+                    card1.classList.add("matched");
+                    card2.classList.add("matched");
+                    resetFlip();
+                    checkVictory(); // Verifica se venceu
+                  } else {
+                    setTimeout(() => {
+                      card1.classList.remove("flip");
+                      card2.classList.remove("flip");
+                      resetFlip();
+                    }, 1000);
+                  }
+                }
+              });
+            });
+
+            function resetFlip() {
+              flippedCards = [];
+              lockBoard = false;
+            }
+
+            function checkVictory() {
+              const totalCards = cards.length;
+              const matchedCards = document.querySelectorAll(".card.matched").length;
+
+              if (matchedCards === totalCards) {
+                setTimeout(() => {
+                  showVictoryMessage();
+                }, 800);
+              }
+            }
+
+            function showVictoryMessage() {
+              const victory = document.getElementById("victory-message");
+              if (victory) victory.style.display = "flex";
+            }
+
+            function restartGame() {
+              const victory = document.getElementById("victory-message");
+              victory.style.display = "none";
+              shuffleCardImages();
+            }
+
+            function shuffleCardImages() {
+              const cardElements = document.querySelectorAll(".card");
+              const images = Array.from(cardElements).map(card =>
+                card.querySelector(".back img").src
+              );
+
+              const shuffled = images.sort(() => Math.random() - 0.5);
+
+              cardElements.forEach((card, index) => {
+                card.classList.remove("flip", "matched");
+                card.querySelector(".back img").src = shuffled[index];
+              });
+
+              flippedCards = [];
+              lockBoard = false;
+            }
+
+            // Embaralha as cartas no carregamento inicial
+            window.addEventListener("DOMContentLoaded", shuffleCardImages);
+          </script>
+
+          <!-- Tela de vitória -->
+          <div id="victory-message">
+            <div class="content">
+              <h2>Parabéns! 🦖</h2>
+              <p>Você encontrou todos os dinossauros!</p>
+              <button onclick="restartGame()">Jogar novamente</button>
+            </div>
+          </div>
+
+          
+            
+          
+        <!-- Seção Formulário de Interesse -->
+        <section id="formulario">
+            <h2>Fique por dentro do lançamento</h2>
+            <form>
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="mensagem">Digite sua mensagem:</label>
+                <textarea id="mensagem" name="mensagem" rows="4" required></textarea>
+
+                <button type="submit">Enviar</button>
+            </form>
+        </section>
+
+        <!-- Seção Apoia-se -->
+        <section id="apoia-se">
+            <h2>Apoie o projeto</h2>
+            <p>Curtiu a ideia? Me apoie com um café ou compartilhe com seus amigos!</p>
+            <button onclick="alert('Obrigado pelo apoio! ☕')">Apoiar com um café</button>
+        </section>
+        <!-- Seção Contato -->
+        <section id="contato">
+            <h2>Conheça mais projetos</h2>
+            <a href="https://github.com/thesimas" target="_blank" class="github-link">
+              <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 0.297C5.37 0.297 0 5.666 0 12.297C0 17.574 3.438 22.017 8.207 23.682C8.805 23.793 9.025 23.422 9.025 23.096C9.025 22.802 9.013 22.065 9.006 21.138C5.672 21.813 4.968 19.517 4.968 19.517C4.438 18.097 3.675 17.733 3.675 17.733C2.63 17.048 3.758 17.064 3.758 17.064C4.922 17.146 5.54 18.267 5.54 18.267C6.57 20.023 8.302 19.487 9.006 19.169C9.112 18.419 9.4 17.894 9.725 17.595C7.09 17.293 4.332 16.234 4.332 11.747C4.332 10.412 4.803 9.322 5.592 8.476C5.463 8.168 5.053 6.899 5.703 5.207C5.703 5.207 6.715 4.887 9.006 6.511C9.976 6.239 11.016 6.103 12.056 6.097C13.096 6.103 14.136 6.239 15.106 6.511C17.397 4.887 18.408 5.207 18.408 5.207C19.058 6.899 18.648 8.168 18.519 8.476C19.308 9.322 19.779 10.412 19.779 11.747C19.779 16.248 17.015 17.289 14.37 17.584C14.799 17.969 15.179 18.741 15.179 19.933C15.179 21.64 15.163 22.938 15.163 23.096C15.163 23.422 15.375 23.799 15.984 23.682C20.752 22.017 24 17.573 24 12.297C24 5.666 18.63 0.297 12 0.297Z"/>
+              </svg>
+              GitHub
+            </a>
+          </section>
+          
+    </main>
+</body>
+</html>
